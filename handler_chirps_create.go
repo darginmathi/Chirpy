@@ -2,7 +2,9 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/darginmathi/Chirpy/internal/database"
@@ -23,10 +25,6 @@ func (cfg *apiConfig) handlerCreateChirp(w http.ResponseWriter, r *http.Request)
 		UserID uuid.UUID `json:"user_id"`
 	}
 
-	type response struct {
-		Chirp
-	}
-
 	decoder := json.NewDecoder(r.Body)
 	params := parameters{}
 	err := decoder.Decode(&params)
@@ -35,13 +33,13 @@ func (cfg *apiConfig) handlerCreateChirp(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	validatedBody, err := handlerValidateChirp(params.Body)
+	cleaned, err := validateChirp(params.Body)
 	if err != nil {
 		respondWithError(w, http.StatusBadRequest, "Chirp too long", err)
 	}
 
 	chirp, err := cfg.db.CreateChirp(r.Context(), database.CreateChirpParams{
-		Body:   validatedBody,
+		Body:   cleaned,
 		UserID: params.UserID,
 	})
 	if err != nil {
@@ -49,13 +47,39 @@ func (cfg *apiConfig) handlerCreateChirp(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	respondWithJSON(w, http.StatusCreated, response{
-		Chirp: Chirp{
-			ID:        chirp.ID,
-			CreatedAt: chirp.CreatedAt,
-			UpdatedAt: chirp.UpdatedAt,
-			Body:      chirp.Body,
-			UserID:    chirp.UserID,
-		},
+	respondWithJSON(w, http.StatusCreated, Chirp{
+		ID:        chirp.ID,
+		CreatedAt: chirp.CreatedAt,
+		UpdatedAt: chirp.UpdatedAt,
+		Body:      chirp.Body,
+		UserID:    chirp.UserID,
 	})
+}
+
+func validateChirp(chirp string) (string, error) {
+
+	const maxChirpLength = 140
+
+	if len(chirp) > maxChirpLength {
+		return chirp, fmt.Errorf("chirp too long")
+	}
+
+	badWords := map[string]struct{}{
+		"kerfuffle": {},
+		"sharbert":  {},
+		"fornax":    {},
+	}
+
+	return getCleanBody(chirp, badWords), nil
+}
+
+func getCleanBody(body string, badWords map[string]struct{}) string {
+	words := strings.Split(body, " ")
+	for i, word := range words {
+		lowerWord := strings.ToLower(word)
+		if _, ok := badWords[lowerWord]; ok {
+			words[i] = "****"
+		}
+	}
+	return strings.Join(words, " ")
 }
