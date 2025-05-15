@@ -44,5 +44,5 @@ func (cfg *apiConfig) handlerChirpsDelete(w http.ResponseWriter, r *http.Request
 		respondWithError(w, http.StatusNotFound, "could not get chirp", err)
 		return
 	}
-	respondWithJSON(w, http.StatusNoContent, nil)
+	w.WriteHeader(http.StatusNoContent)
 }

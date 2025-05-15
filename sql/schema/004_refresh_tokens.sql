@@ -7,3 +7,6 @@ CREATE TABLE refresh_tokens (
   expires_at TIMESTAMP NOT NULL,
   revoked_at TIMESTAMP DEFAULT NULL
 );
+
+-- +goose Down
+DROP TABLE refresh_tokens;
