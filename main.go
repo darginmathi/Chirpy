@@ -17,6 +17,7 @@ type apiConfig struct {
 	db             *database.Queries
 	platform       string
 	jwt_secret     string
+	polka_key      string
 }
 
 func main() {
@@ -34,9 +35,14 @@ func main() {
 		log.Fatal("PLATFORM must be set")
 	}
 
-	jwt_secret := os.Getenv("JWT_SECRET")
+	jwtSecret := os.Getenv("JWT_SECRET")
 	if platform == "" {
 		log.Fatal("JWT_SECRET must be set")
+	}
+
+	polkaKey := os.Getenv("POLKA_KEY")
+	if platform == "" {
+		log.Fatal("POLKA_KEY must be set")
 	}
 
 	dbConn, err := sql.Open("postgres", dbURL)
@@ -50,7 +56,8 @@ func main() {
 		fileserverHits: atomic.Int32{},
 		db:             dbQueries,
 		platform:       platform,
-		jwt_secret:     jwt_secret,
+		jwt_secret:     jwtSecret,
+		polka_key:      polkaKey,
 	}
 
 	mux := http.NewServeMux()
