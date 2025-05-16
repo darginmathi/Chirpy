@@ -2,3 +2,4 @@ out
 .http
 .env
 learn-http-servers
+database.json
