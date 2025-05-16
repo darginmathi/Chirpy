@@ -1,6 +1,6 @@
 # Chirpy — A Twitter-Like API Server in Go
 
-Chirpy is a simple, Twitter-inspired API server written in Go. It allows users to register, log in, post short messages ("chirps"), and manage sessions. It includes support for JWT authentication, user upgrades via a `polka` webhook, and basic admin metrics.
+Chirpy is a simple, Twitter-inspired API server written in Go. It allows users to register, log in, post short messages ("chirps"), and manage sessions. It includes support for JWT authentication and basic admin metrics.
 
 ## Features
 
@@ -28,7 +28,7 @@ Chirpy is a simple, Twitter-inspired API server written in Go. It allows users t
 Create a `.env` file in the root directory:
 
 ```env
-DB_URL=postgres://<username>:<password>@localhost/<dbname>?sslmode=disable
+DB_URL="postgres://<username>:<password>@localhost/<dbname>?sslmode=disable"
 PLATFORM=production
 JWT_SECRET=your-secret-key
 POLKA_KEY=your-polka-key
@@ -71,9 +71,9 @@ Optional query parameters:
 ### Admin
 `GET /admin/metrics` – View file server hit count
 
-`POST /admin/reset` – Reset metrics
+`POST /admin/reset` – Reset metrics (if platform is dev)
 
 ### Webhooks
-`POST /api/polka/webhooks` – Handle user upgrade via polka webhook
+`POST /api/polka/webhooks` – Handle user upgrade
 
 
